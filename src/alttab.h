@@ -38,7 +38,7 @@ along with alttab.  If not, see <http://www.gnu.org/licenses/>.
 #define DEFICONH    32
 #define DEFBORDERW  0
 #define DEFTHEME    "hicolor"
-#define FRAME_W     8
+#define FRAME_W     3
 //#define DEFFONT   "xft:DejaVu Sans Condensed-10"
 #define DEFFONT     "xft:sans-10"
 

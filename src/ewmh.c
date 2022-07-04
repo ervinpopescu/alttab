@@ -230,12 +230,13 @@ int ewmh_initWinlist()
             continue;
 
         // build title
-        char *wmn1 = get_x_property(w, XA_STRING, "WM_NAME", NULL);
-        Atom utf8str = XInternAtom(dpy, "UTF8_STRING", False);
-        char *wmn2 = get_x_property(w, utf8str, "_NET_WM_NAME", NULL);
-        title = wmn2 ? strdup(wmn2) : (wmn1 ? strdup(wmn1) : NULL);
-        free(wmn1);
-        free(wmn2);
+        // char *wmn1 = get_x_property(w, XA_STRING, "WM_NAME", NULL);
+        // Atom utf8str = XInternAtom(dpy, "UTF8_STRING", False);
+        // char *wmn2 = get_x_property(w, utf8str, "_NET_WM_NAME", NULL);
+        // title = wmn2 ? strdup(wmn2) : (wmn1 ? strdup(wmn1) : NULL);
+        // free(wmn1);
+        // free(wmn2);
+        title="";
 
         addWindowInfo(w, 0, 0, window_desktop, title);
         if (w == aw) {
