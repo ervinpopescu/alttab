@@ -44,11 +44,14 @@ Window x_get_leader(Window win)
     Window leader = None;
 
     retprop =
-        (Window *) get_x_property(win, XA_WINDOW, "WM_CLIENT_LEADER", NULL);
-    if (retprop != NULL) {
+        (Window *)get_x_property(win, XA_WINDOW, "WM_CLIENT_LEADER", NULL);
+    if (retprop != NULL)
+    {
         leader = retprop[0];
         XFree(retprop);
-    } else {
+    }
+    else
+    {
         if (!(h = XGetWMHints(dpy, win)))
             return None;
         if (h->flags & WindowGroupHint)
@@ -69,55 +72,58 @@ int x_initWindowsInfoRecursive(Window win, int reclevel)
     Window root, parent;
     Window *children;
     unsigned int nchildren, i;
-//    Window leader;
+    //    Window leader;
     XWindowAttributes wa;
     char *winname;
 
-// check if window is "leader" or no prop, skip otherwise
-// caveat: in rp, gvim leader has no file name and icon
-// this doesn't work in raw X: leader may be not viewable.
-// doesn't work in twm either: qutebrowser has meaningless leader.
-/*
-    leader = 0;
-    if (g.option_wm == WM_TWM) {
-        leader = x_get_leader (win);
-        msg(1, "win: 0x%lx leader: 0x%lx\n", win, leader);
-    }
-*/
-// in non-twm, add viewable only
-// caveat: in rp, skips anything except of visible window
-// probably add an option for this in WMs too?
+    // check if window is "leader" or no prop, skip otherwise
+    // caveat: in rp, gvim leader has no file name and icon
+    // this doesn't work in raw X: leader may be not viewable.
+    // doesn't work in twm either: qutebrowser has meaningless leader.
+    /*
+        leader = 0;
+        if (g.option_wm == WM_TWM) {
+            leader = x_get_leader (win);
+            msg(1, "win: 0x%lx leader: 0x%lx\n", win, leader);
+        }
+    */
+    // in non-twm, add viewable only
+    // caveat: in rp, skips anything except of visible window
+    // probably add an option for this in WMs too?
     wa.map_state = 0;
     if (g.option_wm != WM_TWM)
         XGetWindowAttributes(dpy, win, &wa);
 
-// in twm-like, add only windows with a name
+    // in twm-like, add only windows with a name
     winname = NULL;
-    if (g.option_wm == WM_TWM) {
+    if (g.option_wm == WM_TWM)
+    {
         winname = get_x_property(win, XA_STRING, "WM_NAME", NULL);
     }
-// insert detailed window data in window list
-    if ((g.option_wm == WM_TWM || wa.map_state == IsViewable)
-        && reclevel != 0 && (g.option_wm != WM_TWM || winname != NULL)
-//            && (g.option_wm != WM_TWM || leader == win)
-        && !common_skipWindow(win, DESKTOP_UNKNOWN, DESKTOP_UNKNOWN)
-        ) {
+    // insert detailed window data in window list
+    if ((g.option_wm == WM_TWM || wa.map_state == IsViewable) && reclevel != 0 && (g.option_wm != WM_TWM || winname != NULL)
+        //            && (g.option_wm != WM_TWM || leader == win)
+        && !common_skipWindow(win, DESKTOP_UNKNOWN, DESKTOP_UNKNOWN))
+    {
         addWindowInfo(win, reclevel, 0, DESKTOP_UNKNOWN, winname);
     }
-// skip children if max recursion level reached
+    // skip children if max recursion level reached
     if (g.option_max_reclevel != -1 && reclevel >= g.option_max_reclevel)
         return 1;
 
-// recursion
-    if (XQueryTree(dpy, win, &root, &parent, &children, &nchildren) == 0) {
+    // recursion
+    if (XQueryTree(dpy, win, &root, &parent, &children, &nchildren) == 0)
+    {
         msg(0, "can't get window tree for 0x%lx\n", win);
         return 0;
     }
-    for (i = 0; i < nchildren; ++i) {
+    for (i = 0; i < nchildren; ++i)
+    {
         x_initWindowsInfoRecursive(children[i], reclevel + 1);
     }
 
-    if (nchildren > 0 && children) {
+    if (nchildren > 0 && children)
+    {
         XFree(children);
     }
     return 1;
@@ -130,17 +136,17 @@ int x_setFocus(int wndx)
 {
     Window w = g.winlist[wndx].id;
 
-// 1. XWarpPointer
-// If such WMs would be discovered that prevent our focus
-// AND set their own focus via the pointer only.
+    // 1. XWarpPointer
+    // If such WMs would be discovered that prevent our focus
+    // AND set their own focus via the pointer only.
 
-// 2. XRaiseWindow required, but doesn't make window "Viewable"
+    // 2. XRaiseWindow required, but doesn't make window "Viewable"
     XRaiseWindow(dpy, w);
 
-// 3. XSetInputFocus
-// "The specified focus window must be viewable at the time
-// XSetInputFocus is called, or a BadMatch error results."
-// This check is redundant: non-viewable windows isn't added to winlist in raw X anyway
+    // 3. XSetInputFocus
+    // "The specified focus window must be viewable at the time
+    // XSetInputFocus is called, or a BadMatch error results."
+    // This check is redundant: non-viewable windows isn't added to winlist in raw X anyway
     XWindowAttributes att;
     XGetWindowAttributes(dpy, w, &att);
     if (att.map_state == IsViewable)
@@ -163,7 +169,8 @@ void x_setCommonPropertiesForAnyWindow(Window win)
     // for delete notification
     evmask |= StructureNotifyMask;
     // for focusIn notification
-    if (g.option_wm != WM_EWMH) {
+    if (g.option_wm != WM_EWMH)
+    {
         msg(0, "using direct focus tracking for 0x%lx\n", win);
         evmask |= FocusChangeMask;
     }

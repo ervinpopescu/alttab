@@ -32,19 +32,20 @@ along with alttab.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdint.h>
 
-#define MAXPROPLEN  4096
-#define MAXPROPBIG  128000 * sizeof(long)  // for icon array, for example
-#define ERRLEN      2048
+#define MAXPROPLEN 4096
+#define MAXPROPBIG 128000 * sizeof(long) // for icon array, for example
+#define ERRLEN 2048
 
 #ifndef COMTYPES
 #define COMTYPES
-typedef struct {
+typedef struct
+{
     int w;
     int h;
     int x;
     int y;
 } quad;
-#define MAXNAMESZ   256
+#define MAXNAMESZ 256
 #endif
 
 extern XErrorEvent *ee_ignored;
@@ -52,25 +53,26 @@ extern bool ee_complain;
 
 // values for pixel composite transformations
 // which are constant per entire image
-typedef struct {
+typedef struct
+{
     int RShift, GShift, BShift;
     uint32_t RMask, GMask, BMask;
     unsigned long bg;
     uint8_t bg_r, bg_g, bg_b;
 } CompositeConst;
 
-#define alpha_composite(composite, fg, alpha, bg) {                            \
-    uint16_t shiftarg = ((uint16_t)(fg) * (uint16_t)(alpha) +                  \
-        (uint16_t)(bg) * (uint16_t)(255 - (uint16_t)(alpha)) + (uint16_t)128); \
-    (composite) = (uint8_t)((shiftarg + (shiftarg >> 8)) >> 8);                \
-}
-
+#define alpha_composite(composite, fg, alpha, bg)                                                   \
+    {                                                                                               \
+        uint16_t shiftarg = ((uint16_t)(fg) * (uint16_t)(alpha) +                                   \
+                             (uint16_t)(bg) * (uint16_t)(255 - (uint16_t)(alpha)) + (uint16_t)128); \
+        (composite) = (uint8_t)((shiftarg + (shiftarg >> 8)) >> 8);                                 \
+    }
 
 unsigned int getOffendingModifiersMask();
 int changeKeygrab(Window win, bool grab, KeyCode keycode,
                   unsigned int modmask, unsigned int ignored_modmask);
-int zeroErrorHandler(Display * dpy_our, XErrorEvent * theEvent);
-//void setSelectInput(Window win, int reg);
+int zeroErrorHandler(Display *dpy_our, XErrorEvent *theEvent);
+// void setSelectInput(Window win, int reg);
 
 int execAndReadStdout(char *exe, char *args[], char *buf, int bufsize);
 
@@ -88,31 +90,31 @@ int pixmapFit(Drawable src, Pixmap src_mask, Drawable dst, unsigned int srcW,
 size_t utf8len(char *s);
 char *utf8index(char *s, size_t pos);
 
-int drawMultiLine(Drawable d, XftFont * font, XftColor * xftcolor, char *str,
+int drawMultiLine(Drawable d, XftFont *font, XftColor *xftcolor, char *str,
                   unsigned int x1, unsigned int y1, unsigned int width,
                   unsigned int height);
 int drawMultiLine_test();
-int drawSingleLine(Drawable d, XftFont * font, XftColor * xftcolor, char *str,
-                  unsigned int x1, unsigned int y1, unsigned int width,
-                  unsigned int height);
+int drawSingleLine(Drawable d, XftFont *font, XftColor *xftcolor, char *str,
+                   unsigned int x1, unsigned int y1, unsigned int width,
+                   unsigned int height);
 
-Bool predproc_true(Display * display, XEvent * event, char *arg);
+Bool predproc_true(Display *display, XEvent *event, char *arg);
 
 char *get_x_property(Window win, Atom prop_type, char *prop_name,
                      unsigned long *prop_size);
 char *get_x_property_alt(Window win,
-			 Atom prop_type1, char *prop_name1,
-			 Atom prop_type2, char *prop_name2,
-			 unsigned long *prop_size);
+                         Atom prop_type1, char *prop_name1,
+                         Atom prop_type2, char *prop_name2,
+                         unsigned long *prop_size);
 
 bool rectangles_cross(quad a, quad b);
-bool get_absolute_coordinates(Window w, quad * q);
+bool get_absolute_coordinates(Window w, quad *q);
 
 void remove_arg(int *argc, char **argv, int argn);
-char *xresource_load_string(XrmDatabase * db, const char *appname, char *name);
-int xresource_load_int(XrmDatabase * db, const char *appname, char *name,
+char *xresource_load_string(XrmDatabase *db, const char *appname, char *name);
+int xresource_load_int(XrmDatabase *db, const char *appname, char *name,
                        unsigned int *ret);
-int ksym_option_to_keycode(XrmDatabase * db, const char *appname,
+int ksym_option_to_keycode(XrmDatabase *db, const char *appname,
                            const char *name, char **errmsg);
 unsigned int keycode_to_modmask(KeyCode kc);
 

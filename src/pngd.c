@@ -29,7 +29,7 @@ extern Window root;
 //
 // read png header
 //
-int pngInit(FILE * infile, TImage * img)
+int pngInit(FILE *infile, TImage *img)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -44,11 +44,13 @@ int pngInit(FILE * infile, TImage * img)
     if (!png_ptr)
         return 0;
     info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) {
+    if (!info_ptr)
+    {
         png_destroy_read_struct(&png_ptr, NULL, NULL);
         return 0;
     }
-    if (setjmp(png_jmpbuf(png_ptr))) {
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
         return 0;
     }
@@ -74,16 +76,17 @@ static void pngFree(TImage *img)
 //
 // read png data
 //
-uint8_t *pngLoadData(TImage * img)
+uint8_t *pngLoadData(TImage *img)
 {
     double gamma;
     png_uint_32 i, rowbytes;
 
     png_bytepp row_ptrs = NULL;
-    uint8_t *data = NULL;       // local
+    uint8_t *data = NULL; // local
     static double exponent = 2.2;
 
-    if (setjmp(png_jmpbuf(img->png_ptr))) {
+    if (setjmp(png_jmpbuf(img->png_ptr)))
+    {
         png_destroy_read_struct(&(img->png_ptr), &(img->info_ptr), NULL);
         return NULL;
     }
@@ -104,12 +107,14 @@ uint8_t *pngLoadData(TImage * img)
     png_read_update_info(img->png_ptr, img->info_ptr);
     img->rowbytes = rowbytes = png_get_rowbytes(img->png_ptr, img->info_ptr);
     img->channels = (int)png_get_channels(img->png_ptr, img->info_ptr);
-    if ((data = (uint8_t *) malloc(rowbytes * (img->height))) == NULL) {
+    if ((data = (uint8_t *)malloc(rowbytes * (img->height))) == NULL)
+    {
         png_destroy_read_struct(&img->png_ptr, &img->info_ptr, NULL);
         return NULL;
     }
     if ((row_ptrs =
-         (png_bytepp) malloc((img->height) * sizeof(png_bytep))) == NULL) {
+             (png_bytepp)malloc((img->height) * sizeof(png_bytep))) == NULL)
+    {
         png_destroy_read_struct(&(img->png_ptr), &(img->info_ptr), NULL);
         free(data);
         data = NULL;
@@ -130,7 +135,7 @@ uint8_t *pngLoadData(TImage * img)
 // combines img onto d
 // using: intermediate ximage, visual, background
 //
-int pngDraw(TImage * img, Drawable d, XImage * ximage, Visual * visual,
+int pngDraw(TImage *img, Drawable d, XImage *ximage, Visual *visual,
             uint8_t bg_red, uint8_t bg_green, uint8_t bg_blue)
 {
     uint8_t *src;
@@ -153,11 +158,14 @@ int pngDraw(TImage * img, Drawable d, XImage * ximage, Visual * visual,
     GShift = convert_msb(GMask) - 7;
     BShift = convert_msb(BMask) - 7;
 
-    for (lastrow = row = 0; row < img->height; ++row) {
+    for (lastrow = row = 0; row < img->height; ++row)
+    {
         src = img->data + row * img->rowbytes;
         dest = ximage->data + row * xrowbytes;
-        if (img->channels == 3) {
-            for (i = img->width; i > 0; --i) {
+        if (img->channels == 3)
+        {
+            for (i = img->width; i > 0; --i)
+            {
                 red = *src++;
                 green = *src++;
                 blue = *src++;
@@ -167,27 +175,35 @@ int pngDraw(TImage * img, Drawable d, XImage * ximage, Visual * visual,
                 *dest++ = (char)((pixel >> 8) & 0xff);
                 *dest++ = (char)(pixel & 0xff);
             }
-        } else {                /* if (channels == 4) */
+        }
+        else
+        { /* if (channels == 4) */
 
-            for (i = img->width; i > 0; --i) {
+            for (i = img->width; i > 0; --i)
+            {
                 r = *src++;
                 g = *src++;
                 b = *src++;
                 a = *src++;
-                if (a == 255) {
+                if (a == 255)
+                {
                     red = r;
                     green = g;
                     blue = b;
-                } else if (a == 0) {
+                }
+                else if (a == 0)
+                {
                     red = bg_red;
                     green = bg_green;
                     blue = bg_blue;
-                } else {
+                }
+                else
+                {
                     alpha_composite(red, r, a, bg_red);
                     alpha_composite(green, g, a, bg_green);
                     alpha_composite(blue, b, a, bg_blue);
                 }
-                //fprintf (stderr, "r=%d g=%d b=%d a=%d red=%d green=%d blue=%d RShift=%d GShift=%d BShift=%d\n", r, g, b, a, red, green, blue, RShift, GShift, BShift);
+                // fprintf (stderr, "r=%d g=%d b=%d a=%d red=%d green=%d blue=%d RShift=%d GShift=%d BShift=%d\n", r, g, b, a, red, green, blue, RShift, GShift, BShift);
                 pixel = (red << RShift) | (green << GShift) | (blue << BShift);
                 *dest++ = (char)((pixel >> 24) & 0xff);
                 *dest++ = (char)((pixel >> 16) & 0xff);
@@ -195,7 +211,8 @@ int pngDraw(TImage * img, Drawable d, XImage * ximage, Visual * visual,
                 *dest++ = (char)(pixel & 0xff);
             }
         }
-        if (((row + 1) & 0xf) == 0) {
+        if (((row + 1) & 0xf) == 0)
+        {
             XPutImage(dpy, d, gc, ximage, 0, (int)lastrow, 0,
                       (int)lastrow, img->width, 16);
             XFlush(dpy);
@@ -203,7 +220,8 @@ int pngDraw(TImage * img, Drawable d, XImage * ximage, Visual * visual,
         }
     }
 
-    if (lastrow < img->height) {
+    if (lastrow < img->height)
+    {
         XPutImage(dpy, d, gc, ximage, 0, (int)lastrow, 0,
                   (int)lastrow, img->width, img->height - lastrow);
     }
@@ -234,21 +252,25 @@ int pngReadToDrawable(char *pngpath, Drawable d, uint8_t bg_red,
     visual = DefaultVisual(dpy, scr);
     depth = DisplayPlanes(dpy, scr);
 
-    if (!(depth == 24 || depth == 32)) {
+    if (!(depth == 24 || depth == 32))
+    {
         fprintf(stderr, "X11 depth must be 24 or 32, we have %d\n", depth);
         return 0;
     }
-    if (!(infile = fopen(pngpath, "rb"))) {
+    if (!(infile = fopen(pngpath, "rb")))
+    {
         fprintf(stderr, "can't open [%s]\n", pngpath);
         return 0;
     }
-    if ((pngInit(infile, &img)) != 1) {
+    if ((pngInit(infile, &img)) != 1)
+    {
         fprintf(stderr, "error reading png header\n");
         return 0;
     }
     img.data = pngLoadData(&img);
     fclose(infile);
-    if (!img.data || img.width == 0 || img.height == 0) {
+    if (!img.data || img.width == 0 || img.height == 0)
+    {
         fprintf(stderr, "error loading png data\n");
         pngFree(&img);
         return 0;
@@ -256,9 +278,10 @@ int pngReadToDrawable(char *pngpath, Drawable d, uint8_t bg_red,
     if (debug > 0)
         fprintf(stderr, "read %dx%d png, %d channels\n", img.width,
                 img.height, img.channels);
-    xdata = (uint8_t *) malloc(4 * img.width * img.height);
+    xdata = (uint8_t *)malloc(4 * img.width * img.height);
     pad = 32;
-    if (!xdata) {
+    if (!xdata)
+    {
         fprintf(stderr, "xdata malloc error\n");
         pngFree(&img);
         return 0;
@@ -266,7 +289,8 @@ int pngReadToDrawable(char *pngpath, Drawable d, uint8_t bg_red,
     ximage =
         XCreateImage(dpy, visual, depth, ZPixmap, 0, (char *)xdata,
                      img.width, img.height, pad, 0);
-    if (!ximage) {
+    if (!ximage)
+    {
         fprintf(stderr, "error creating ximage\n");
         free(xdata);
         pngFree(&img);
@@ -295,7 +319,8 @@ int pngReadToDrawable_test(char *pngfile)
 
     p = XCreateSimpleWindow(dpy, root, 0, 0, 600, 600, 0,
                             WhitePixel(dpy, scr), WhitePixel(dpy, scr));
-    if (p == None) {
+    if (p == None)
+    {
         fprintf(stderr, "error creating main window\n");
         return 0;
     }
@@ -306,7 +331,8 @@ int pngReadToDrawable_test(char *pngfile)
     while (e.type != Expose || e.xexpose.count);
     XFlush(dpy);
 
-    if (pngReadToDrawable(pngfile, p, 255, 255, 255) != 1) {
+    if (pngReadToDrawable(pngfile, p, 255, 255, 255) != 1)
+    {
         fprintf(stderr, "can't read png to drawadle\n");
         return 0;
     }
